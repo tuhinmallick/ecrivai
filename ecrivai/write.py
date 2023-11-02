@@ -53,19 +53,15 @@ def md2hugo(md_file_path: str, out_file_path: str) -> None:
     with open(md_file_path, "r") as f:
         blog_text = f.read()
 
-    # extract title (look for 1st level heading then 2nd level heading)
-    match = re.search(r"^# (.*)$", blog_text, flags=re.MULTILINE)
-    if match:
+    if match := re.search(r"^# (.*)$", blog_text, flags=re.MULTILINE):
         blog_title = match.group(1)
         logging.info(f"Found blog title (1st level): {blog_title}")
+    elif match := re.search(r"^## (.*)$", blog_text, flags=re.MULTILINE):
+        blog_title = match.group(1)
+        logging.info(f"Found blog title (2nd level): {blog_title}")
     else:
-        match = re.search(r"^## (.*)$", blog_text, flags=re.MULTILINE)
-        if match:
-            blog_title = match.group(1)
-            logging.info(f"Found blog title (2nd level): {blog_title}")
-        else:
-            logging.warning("No blog title found in 1st or 2nd level headings")
-            blog_title = "Blog Title"
+        logging.warning("No blog title found in 1st or 2nd level headings")
+        blog_title = "Blog Title"
 
     now = datetime.datetime.now(datetime.timezone.utc)
     now_str = now.isoformat(timespec="seconds")
